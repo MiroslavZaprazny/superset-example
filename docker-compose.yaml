@@ -3,15 +3,23 @@ services:
     image: redis:8.4.0
     container_name: superset_cache
     restart: unless-stopped
-    expose:
-      - 6379
 
-  db:
+  analytics_db:
     image: postgres:16
-    container_name: superset_db
+    container_name: analytics_db
     restart: unless-stopped
     environment:
-      - POSTGRES_DB=superset
+      - POSTGRES_DB=superset_analytics
+      - POSTGRES_USER=superset
+      - POSTGRES_PASSWORD=supersecret
+      - POSTGRES_PORT=5432
+
+  meta_db:
+    image: postgres:16
+    container_name: meta_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=superset_meta
       - POSTGRES_USER=superset
       - POSTGRES_PASSWORD=supersecret
       - POSTGRES_PORT=5432
@@ -23,26 +31,24 @@ services:
     ports:
       - 8088:8088
     environment:
-      - DATABASE_DIALECT=postgresql
-      - DATABASE_USER=superset
-      - DATABASE_PASSWORD=supersecret
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432
-      - DATABASE_DB=superset
+      - META_DATABASE_URI=postgresql+psycopg2://superset:supersecret@meta_db:5432/superset_meta
+      - ANALYTICS_DATABASE_URI=postgresql+psycopg2://superset:supersecret@analytics_db:5432/superset_analytics
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SUPERSET_CONFIG_PATH=/app/pythonpath/superset_config.py
       - SUPERSET_ENV=production
       - SUPERSET_SECRET_KEY=supersecretkey123
-      - KEYCLOAK_URI=http://keycloak.local:8080
+      - KEYCLOAK_BASE_URI=http://keycloak:8080
+      - KEYCLOAK_REALM=superset
       - KEYCLOAK_CLIENT_ID=superset # generated from keycloak
       - KEYCLOAK_CLIENT_SECRET=bV5Mw6fusODe8cUt8KOyKl5BhrEMLqmh # generated from keycloak
-
     volumes:
       - ./superset_config.py:/app/pythonpath/superset_config.py
+      - ./assets:/app/assets
     depends_on:
       - redis
-      - db
+      - meta_db
+      - analytics_db
 
   keycloak:
     image: quay.io/keycloak/keycloak:26.4

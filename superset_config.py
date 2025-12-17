@@ -4,22 +4,14 @@ import os
 
 from flask_appbuilder.security.manager import AUTH_OAUTH
 
-DATABASE_DIALECT = os.getenv("DATABASE_DIALECT")
-DATABASE_USER = os.getenv("DATABASE_USER")
-DATABASE_PASSWORD = os.getenv("DATABASE_PASSWORD")
-DATABASE_HOST = os.getenv("DATABASE_HOST")
-DATABASE_PORT = os.getenv("DATABASE_PORT")
-DATABASE_DB = os.getenv("DATABASE_DB")
-
-SQLALCHEMY_DATABASE_URI = (
-    "postgresql+psycopg2://"
-    f"{DATABASE_USER}:{DATABASE_PASSWORD}@"
-    f"{DATABASE_HOST}:{DATABASE_PORT}/{DATABASE_DB}"
-)
+SQLALCHEMY_DATABASE_URI = os.getenv("META_DATABASE_URI")
+FEATURE_FLAGS = {
+    'ENABLE_TEMPLATE_PROCESSING': True,
+    'DASHBOARD_RBAC': True
+}
 
 REDIS_HOST = os.getenv("REDIS_HOST", "redis")
 REDIS_PORT = os.getenv("REDIS_PORT", "6379")
-REDIS_CELERY_DB = os.getenv("REDIS_CELERY_DB", "0")
 REDIS_RESULTS_DB = os.getenv("REDIS_RESULTS_DB", "1")
 
 CACHE_CONFIG = {
@@ -31,13 +23,14 @@ CACHE_CONFIG = {
     "CACHE_REDIS_DB": REDIS_RESULTS_DB,
 }
 DATA_CACHE_CONFIG = CACHE_CONFIG
-THUMBNAIL_CACHE_CONFIG = CACHE_CONFIG
+FILTER_STATE_CACHE_CONFIG = CACHE_CONFIG
+EXPLORE_FORM_DATA_CACHE_CONFIG = CACHE_CONFIG
 
 AUTH_TYPE = AUTH_OAUTH
-AUTH_USER_REGISTRATION = True
 AUTH_ROLES_SYNC_AT_LOGIN = True
 
-KEYCLOAK_URI = os.getenv("KEYCLOAK_URI")
+KEYCLOAK_BASE_URI = os.getenv("KEYCLOAK_BASE_URI")
+KEYCLOAK_REALM = os.getenv("KEYCLOAK_REALM")
 KEYCLOAK_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID")
 KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET")
 
@@ -49,16 +42,16 @@ OAUTH_PROVIDERS = [
         "name": "keycloak",
         "icon": "fa-key",
         "token_key": "access_token",
-        'remote_app': {
-            'client_id': KEYCLOAK_CLIENT_ID,
-            'client_secret': KEYCLOAK_CLIENT_SECRET,
-            'client_kwargs': {
+        "remote_app": {
+            "client_id": KEYCLOAK_CLIENT_ID,
+            "client_secret": KEYCLOAK_CLIENT_SECRET,
+            "client_kwargs": {
                 "scope": "openid email profile"
             },
-            "api_base_url": "http://keycloak:8080/realms/superset/protocol/",
-            "access_token_url": "http://keycloak:8080/realms/superset/protocol/openid-connect/token",
-            "authorize_url": "http://keycloak:8080/realms/superset/protocol/openid-connect/auth",
-            'jwks_uri': 'http://keycloak:8080/realms/superset/protocol/openid-connect/certs',
+            "api_base_url": f"{KEYCLOAK_BASE_URI}/realms/{KEYCLOAK_REALM}/protocol/",
+            "access_token_url": f"{KEYCLOAK_BASE_URI}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token",
+            "authorize_url": f"{KEYCLOAK_BASE_URI}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/auth",
+            "jwks_uri": f"{KEYCLOAK_BASE_URI}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/certs",
         },
     }
 ]
