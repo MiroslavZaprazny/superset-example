@@ -5,7 +5,7 @@ rm -rf export
 mkdir export
 
 echo "Exporting dashboards"
-docker exec superset_app superset export-dashboards -f /tmp/dashboards.zip
+docker exec superset_app superset export-dashboards --include-related-assets -f /tmp/dashboards.zip
 
 echo "Exporting roles"
 docker exec superset_app superset fab export-roles -path /tmp/roles.json
