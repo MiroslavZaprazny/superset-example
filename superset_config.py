@@ -5,8 +5,8 @@ import os
 from flask_appbuilder.security.manager import AUTH_OAUTH
 
 SQLALCHEMY_DATABASE_URI = os.getenv("META_DATABASE_URI")
+
 FEATURE_FLAGS = {
-    'ENABLE_TEMPLATE_PROCESSING': True,
     'DASHBOARD_RBAC': True
 }
 
@@ -37,8 +37,8 @@ KEYCLOAK_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET")
 
 OAUTH_PROVIDERS = [
     # https://github.com/dpgaspar/Flask-AppBuilder/blob/release/5.0.2/flask_appbuilder/security/manager.py#L702
-    # In order to inherit groups from keycloak we need to add "Group Membership" client scope mapper
-    # with the name "groups" so that FAB can map it successfully
+    # In order to inherit groups/roles from keycloak out of the box there needs to be a "group" token claim sent 
+    # in the user info endpoint. In keycloak this can be achieved using Mappers.
     {   
         "name": "keycloak",
         "icon": "fa-key",

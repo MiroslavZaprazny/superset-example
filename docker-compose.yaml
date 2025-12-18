@@ -32,7 +32,6 @@ services:
       - 8088:8088
     environment:
       - META_DATABASE_URI=postgresql+psycopg2://superset:supersecret@meta_db:5432/superset_meta
-      - ANALYTICS_DATABASE_URI=postgresql+psycopg2://superset:supersecret@analytics_db:5432/superset_analytics
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - SUPERSET_CONFIG_PATH=/app/pythonpath/superset_config.py
